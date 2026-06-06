@@ -54,4 +54,24 @@ public class User implements UserDetails {
                 .collect(Collectors.toSet());
     }
 
+    @Override
+    public boolean isAccountNonExpired() {
+        return true; // Cuenta activa
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true; // Cuenta desbloqueada
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true; // Credenciales vigentes
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true; // Usuario habilitado
+    }
+
 }

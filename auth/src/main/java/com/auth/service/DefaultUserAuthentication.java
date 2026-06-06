@@ -11,14 +11,12 @@ import org.springframework.stereotype.Service;
 public class DefaultUserAuthentication implements UserDetailsService {
 
     @Autowired
-    private RepoUser reepoUser;
+    private RepoUser repoUser;
 
     @Override
-    public UserDetails loadUserByUsername(String username)
-            throws UsernameNotFoundException{
-
-        return reepoUser.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: "));
-    }
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    return repoUser.findByUsername(username)
+            .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+}
 
 }

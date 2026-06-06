@@ -34,18 +34,21 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         String username = null;
         String token    = null;
 
-        // 1. Extraer token
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token    = authHeader.substring(7);
-            username = jwtUtil.extractUsername(token);
+        // 1. SI NO HAY TOKEN, O NO EMPIEZA CON BEARER, PASAMOS AL SIGUIENTE FILTRO DE INMEDIATO
+        // Esta es la validación clave para que rutas públicas como /login funcionen sin dar 403
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return; // Detiene la ejecución de este filtro para que no procese lógica vacía
         }
 
-        // 2. Validar y poner en SecurityContext
-        if (username != null &&
-                SecurityContextHolder.getContext().getAuthentication() == null) {
+        // 2. Extraer token (si llegamos aquí, es porque sí contiene un Header válido)
+        token    = authHeader.substring(7);
+        username = jwtUtil.extractUsername(token);
 
-            UserDetails userDetails =
-                    userDetailsService.loadUserByUsername(username);
+        // 3. Validar y poner en SecurityContext
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
             if (jwtUtil.validateToken(token, userDetails)) {
                 UsernamePasswordAuthenticationToken authToken =
@@ -56,7 +59,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             }
         }
 
-        // 3. Continuar
+        // 4. Continuar la cadena con la petición autenticada
         filterChain.doFilter(request, response);
     }
 }
